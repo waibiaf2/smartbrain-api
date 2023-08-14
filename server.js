@@ -5,9 +5,10 @@ const cors = require('cors')
 
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(cors());
+
 
 
 const database = {
@@ -70,15 +71,19 @@ app.post('/signin', (req, res) => {
 	const {email, password} = req.body;
 	
 	if (email === database.users[1].email && password === database.users[1].password) {
-		res.status(200).json('success');
+		const user = database.users[1];
+		res.status(200).json({
+			user,
+			success:true
+		});
 	} else {
 		res.status(400).json('error logging in')
 	}
+
 	
 	/*database.users.forEach( user => {
 		if (email === user.email && password === user.password) {
-			res.json('success');
-		}
+			res.json('success');		}
 	});
 	
 	res.status(400).json('error logging in');*/
@@ -101,21 +106,21 @@ app.post('/register', (req, res) => {
 	res.status(201).json('success');
 });
 
-app.post('/image/:id', (req,res)=>{
-	const {id} = req.params;
+app.put('/image', (req, res) => {
+	const {id} = req.body;
 	let found = false;
 	database.users.forEach(user => {
-		if (user.id === Number(id)) {
+		if (user.id === id) {
 			found = true;
 			user.entries++;
 			return res.json(user.entries);
 		}
 	});
-	
+
 	if (!found) {
 		return res.status(400).json('Not Found');
 	}
-})
+});
 
 /*Server Listening Function*/
 app.listen(3001,() => {
